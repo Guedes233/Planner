@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Planner Semanal Supabase</title>
+  <title>Planner Semanal</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -434,32 +434,18 @@
 </head>
 <body>
   <header>
-    <h1>Planner Semanal Supabase</h1>
-    <p>Planner visual por semana com dados salvos na nuvem.</p>
+    <h1>Planner Semanal</h1>
+    <p>Planner visual por semana com dados sincronizados na nuvem.</p>
   </header>
 
   <main>
     <div class="grid">
-      <section class="card col-12 setup">
+      <section class="card col-12 setup" style="display:none;">
         <h2>Conexão com Supabase</h2>
-        <div class="row">
-          <div>
-            <label for="supabaseUrlInput">Project URL do Supabase</label>
-            <input type="text" id="supabaseUrlInput" placeholder="https://xxxxxxxxxxxx.supabase.co" />
-          </div>
-          <div>
-            <label>Publishable key</label>
-            <input type="text" id="supabaseKeyInput" value="sb_publishable_YWXU_cz2MWCNqZNcG6RhOQ_Gf40wN5l" readonly />
-          </div>
-        </div>
-        <div class="row" style="margin-top:10px;">
-          <button onclick="saveSupabaseConfig()">Salvar conexão</button>
-          <button class="btn-secondary" onclick="testConnection()">Testar conexão</button>
-        </div>
-        <p class="small">Cole aqui a URL do projeto. A chave publishable que você enviou já foi inserida.</p>
-        <div id="connectionStatus" style="margin-top:10px;"></div>
+        <input type="text" id="supabaseUrlInput" />
+        <input type="text" id="supabaseKeyInput" />
+        <div id="connectionStatus"></div>
       </section>
-
       <section class="card col-12">
         <h2>Painel da semana</h2>
         <div class="toolbar">
@@ -632,9 +618,9 @@
   </main>
 
   <script>
+    const SUPABASE_URL = "https://uxcyjdbxwcnrtencdhgx.supabase.co";
     const SUPABASE_KEY = "sb_publishable_YWXU_cz2MWCNqZNcG6RhOQ_Gf40wN5l";
     const TABLE_NAME = "tarefas_planner";
-    const URL_STORAGE_KEY = "planner_supabase_url_luis_v1";
 
     let supabaseClient = null;
     let tasks = [];
@@ -646,7 +632,7 @@
     const priorityFilter = document.getElementById("priorityFilter");
 
     function getSupabaseUrl() {
-      return localStorage.getItem(URL_STORAGE_KEY) || "";
+      return SUPABASE_URL;
     }
 
     function setConnectionStatus(message, ok = true) {
@@ -655,28 +641,11 @@
     }
 
     function setupClient() {
-      const url = getSupabaseUrl();
-      document.getElementById("supabaseUrlInput").value = url;
-
-      if (!url) {
-        setConnectionStatus("Cole a Project URL do Supabase e clique em Salvar conexão.", false);
-        return false;
-      }
-
-      supabaseClient = window.supabase.createClient(url, SUPABASE_KEY);
-      setConnectionStatus("Conexão configurada. Clique em Testar conexão ou Atualizar nuvem.", true);
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       return true;
     }
 
     function saveSupabaseConfig() {
-      const url = document.getElementById("supabaseUrlInput").value.trim();
-
-      if (!url.startsWith("https://") || !url.includes(".supabase.co")) {
-        setConnectionStatus("URL inválida. Use o formato https://xxxxxxxx.supabase.co", false);
-        return;
-      }
-
-      localStorage.setItem(URL_STORAGE_KEY, url);
       setupClient();
       loadTasks();
     }
@@ -1238,10 +1207,7 @@
     weekPicker.value = todayISO();
     setupClient();
     render();
-
-    if (getSupabaseUrl()) {
-      loadTasks();
-    }
+    loadTasks();
   </script>
 </body>
 </html>
